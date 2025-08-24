@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: skillverse-db
+    restart: always
+    environment:
+      POSTGRES_USER: skillverse
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: skillverse_dev
+    ports:
+      - '5432:5432'
+    volumes:
+      - skillverse-data:/var/lib/postgresql/data
+
+volumes:
+  skillverse-data:

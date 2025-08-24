@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  profileImage  String?
+  bio           String?
+  headline      String?
+  skillsOffered String[] @default([])
+  skillsWanted  String[] @default([])
+  avgRating     Float    @default(0)
+  ledgerEntries LedgerEntry[]
+}
+
+model LedgerEntry {
+  id          String         @id @default(cuid())
+  userId      String
+  amount      Float // Can be positive (EARNED, PURCHASED) or negative (SPENT, REFUND)
+  type        LedgerEntryType
+  referenceId String // Will store sessionId or paymentId in the future
+  createdAt   DateTime       @default(now())
+
+  user        User           @relation(fields: [userId], references: [id])
+
+  @@index([userId]) // Add an index for faster lookups on user transactions
+}
+
+enum LedgerEntryType {
+  EARNED
+  SPENT
+  PURCHASED
+  REFUND
+}

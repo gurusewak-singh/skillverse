@@ -1,0 +1,25 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Query {
+  mentors(page: Int! = 1, skill: String): [UserEntity!]!
+  user(id: String!): UserEntity
+}
+
+type UserEntity {
+  avgRating: Float!
+  bio: String
+  createdAt: DateTime!
+  headline: String
+  id: ID!
+  name: String!
+  profileImage: String
+  skillsOffered: [String!]!
+  skillsWanted: [String!]!
+}
