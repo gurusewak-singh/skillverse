@@ -9,18 +9,26 @@ import { GraphQLModule } from '@nestjs/graphql'; // <-- Import GraphQLModule
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'; // <-- Import ApolloDriver
 import { join } from 'path';
 import { LedgerModule } from './ledger/ledger.module';
+import { BookingModule } from './booking/booking.module';
+import { SessionsModule } from './sessions/sessions.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
     AuthModule,
-    UsersModule, // <-- Add UsersModule here
+    UsersModule,
+    LedgerModule, // <-- Add LedgerModule here
+    // PaymentsModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       // <-- Configure GraphQL
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
       playground: true, // Enables the GraphQL Playground IDE in browser
-    }), LedgerModule,
+    }),
+    BookingModule,
+    SessionsModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [

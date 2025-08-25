@@ -12,6 +12,14 @@ type Query {
   user(id: String!): UserEntity
 }
 
+type ReviewEntity {
+  comment: String
+  createdAt: DateTime!
+  id: ID!
+  rating: Int!
+  reviewer: UserEntity!
+}
+
 type UserEntity {
   avgRating: Float!
   bio: String
@@ -20,6 +28,7 @@ type UserEntity {
   id: ID!
   name: String!
   profileImage: String
+  reviewsReceived: [ReviewEntity!]
   skillsOffered: [String!]!
   skillsWanted: [String!]!
 }

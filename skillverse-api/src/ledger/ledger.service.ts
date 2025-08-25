@@ -59,4 +59,17 @@ export class LedgerService {
       data,
     });
   }
+  async addLedgerEntryWithTransaction(
+    tx: any,
+    data: {
+      userId: string;
+      amount: number;
+      type: LedgerEntryType;
+      referenceId: string;
+    },
+  ) {
+    return await tx.ledgerEntry.create({
+      data,
+    });
+  }
 }

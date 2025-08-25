@@ -1,4 +1,5 @@
 import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
+import { ReviewEntity } from '../../reviews/entities/review.entity';
 
 @ObjectType()
 export class UserEntity {
@@ -22,6 +23,9 @@ export class UserEntity {
 
   @Field(() => [String])
   skillsWanted: string[];
+
+  @Field(() => [ReviewEntity], { nullable: true }) // <-- ADD THIS
+  reviewsReceived?: ReviewEntity[];
 
   @Field(() => Float)
   avgRating: number;

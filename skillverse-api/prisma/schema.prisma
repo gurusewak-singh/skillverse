@@ -21,6 +21,11 @@ model User {
   skillsWanted  String[] @default([])
   avgRating     Float    @default(0)
   ledgerEntries LedgerEntry[]
+  hostedSessions   Session[]     @relation("MentorSessions")
+  learnedSessions  Session[]     @relation("LearnerSessions")
+  reviewsGiven     Review[]      @relation("Reviewer")
+  reviewsReceived  Review[]      @relation("Reviewee")
+  // payments         Payment[]   
 }
 
 model LedgerEntry {
@@ -41,4 +46,58 @@ enum LedgerEntryType {
   SPENT
   PURCHASED
   REFUND
+}
+
+model Session {
+  id            String        @id @default(cuid())
+  hostId        String
+  learnerId     String
+  status        SessionStatus @default(PENDING)
+  scheduledTime DateTime
+  duration      Int // in minutes, e.g., 60
+  videoSessionId String? // For Agora/Daily integration later
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  host          User          @relation("MentorSessions", fields: [hostId], references: [id])
+  learner       User          @relation("LearnerSessions", fields: [learnerId], references: [id])
+  booking       Booking?      // A session is created from a booking
+  review        Review?
+
+  @@index([hostId])
+  @@index([learnerId])
+}
+
+model Booking {
+  id        String   @id @default(cuid())
+  sessionId String   @unique // Each booking is tied to one potential session
+  learnerId String
+  status    String   @default("PENDING_CONFIRMATION") // e.g., PENDING_CONFIRMATION, CONFIRMED, CANCELLED
+  createdAt DateTime @default(now())
+
+  session   Session  @relation(fields: [sessionId], references: [id])
+}
+
+enum SessionStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  sessionId  String   @unique // A session can only have one review
+  reviewerId String
+  revieweeId String
+  rating     Int      // Rating from 1 to 5
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  session    Session  @relation(fields: [sessionId], references: [id])
+  reviewer   User     @relation("Reviewer", fields: [reviewerId], references: [id])
+  reviewee   User     @relation("Reviewee", fields: [revieweeId], references: [id])
+
+  @@index([reviewerId])
+  @@index([revieweeId])
 }

@@ -18,7 +18,20 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        reviewsReceived: {
+          include: {
+            reviewer: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+      },
+    });
+
     if (!user) return null;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
