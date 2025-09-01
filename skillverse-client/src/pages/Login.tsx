@@ -1,5 +1,6 @@
+// src/pages/Login.tsx
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Separator } from "@/components/ui/separator";
 import { GraduationCap, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -21,6 +23,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -33,11 +37,11 @@ export default function Login() {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      // TODO: Implement login logic here
-      console.log("Login data:", data);
-      toast.success("Login functionality will be connected to your backend");
-    } catch (error) {
-      toast.error("Login failed. Please try again.");
+      await login(data);
+      toast.success("Logged in successfully!");
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Login failed. Please check your credentials.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -46,15 +50,14 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex items-center justify-center space-x-2 mb-8">
+        <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
           <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
             <GraduationCap className="w-6 h-6 text-white" />
           </div>
           <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
             Skillverse
           </span>
-        </div>
+        </Link>
 
         <Card className="border-border/50 shadow-elegant">
           <CardHeader className="space-y-1 text-center">
@@ -126,15 +129,6 @@ export default function Login() {
                 </Button>
               </form>
             </Form>
-
-            <div className="text-center">
-              <Link
-                to="/forgot-password"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Forgot your password?
-              </Link>
-            </div>
 
             <Separator />
 

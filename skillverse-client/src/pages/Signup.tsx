@@ -1,5 +1,6 @@
+// src/pages/Signup.tsx
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,10 +12,10 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GraduationCap, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 const signupSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
   password: z.string()
     .min(8, "Password must be at least 8 characters")
@@ -36,12 +37,13 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -52,11 +54,11 @@ export default function Signup() {
   const onSubmit = async (data: SignupFormData) => {
     setIsLoading(true);
     try {
-      // TODO: Implement signup logic here
-      console.log("Signup data:", data);
-      toast.success("Account creation functionality will be connected to your backend");
-    } catch (error) {
-      toast.error("Registration failed. Please try again.");
+      await register({ name: data.name, email: data.email, password: data.password });
+      toast.success("Account created successfully! Please log in.");
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Registration failed. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -65,15 +67,14 @@ export default function Signup() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex items-center justify-center space-x-2 mb-8">
+        <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
           <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
             <GraduationCap className="w-6 h-6 text-white" />
           </div>
           <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
             Skillverse
           </span>
-        </div>
+        </Link>
 
         <Card className="border-border/50 shadow-elegant">
           <CardHeader className="space-y-1 text-center">
@@ -85,35 +86,19 @@ export default function Signup() {
           <CardContent className="space-y-4">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="John" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Last Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Doe" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
@@ -218,13 +203,6 @@ export default function Signup() {
                             className="text-primary hover:underline"
                           >
                             Terms of Service
-                          </Link>{" "}
-                          and{" "}
-                          <Link
-                            to="/privacy"
-                            className="text-primary hover:underline"
-                          >
-                            Privacy Policy
                           </Link>
                         </FormLabel>
                         <FormMessage />
